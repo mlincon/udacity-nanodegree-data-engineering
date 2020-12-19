@@ -1,3 +1,29 @@
+## Project Summary
+The startup Sparkify wants to analyze the data they've been collecting on songs and user activity on their new music streaming app. The analytics team is particularly interested in understanding what songs users are listening to. Currently, they don't have an easy way to query their data, which resides in a directory of JSON logs on user activity on the app, as well as a directory with JSON metadata on the songs in their app
+
+Task: To define fact and dimension tables for a star schema for a particular analytic focus, and to write an ETL pipeline that transfers data from files in two local directories into these tables in database.
+
+## How to Run
+To create tables, run
+```python
+python3 create_tables.py
+```
+
+To insert records in the table
+```python
+python3 etl.py
+```
+
+## File Explanations
+- `data`: Folder containing the song and log data in json format
+- `create_tables.py`: Create the required tables in the database. Drop the tables at first if they already exists
+- `etl.py`: Parse the song and log json data from the `data` folder and insert the records in the appropriate tables
+
+Additionally, there are two notebooks for testing purpose:
+- `etl.ipynb`
+- `test.ipynb`
+
+
 #### Roles and Password in PostgreSQL
 
 ##### Role
