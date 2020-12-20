@@ -7,7 +7,10 @@ from sql_queries import *
 
 def process_song_file(cur, filepath):
     """
-    Parse a single song json file and insert data in the songs and artists table
+    Parse a single song json file and insert data in the songs and artists table.
+    
+    :param cur: database cursor object
+    :param filepath: path to the json file
     """
     # open song file
     df = pd.read_json(filepath, lines=True) 
@@ -26,6 +29,12 @@ def process_song_file(cur, filepath):
     
 
 def process_log_file(cur, filepath):
+    """
+    Parse a log json file and insert data in the time, users and songplays table.
+    
+    :param cur: database cursor object
+    :param filepath: path to the json file
+    """
     # open log file
     df = pd.read_json(filepath, lines=True)
 
@@ -80,9 +89,18 @@ def process_log_file(cur, filepath):
             
 
 def process_data(cur, conn, filepath, func):
+    """
+    Handler function to initiate the parse of song and log json files and load the data in database.
+    
+    :param cur: database cursor object
+    :param conn: reference to database connection
+    :param filepath: path to top directory containing the required json files
+    :param filepath: parser function to use
+    """
     # get all files matching extension from directory
     all_files = []
     for root, dirs, files in os.walk(filepath):
+        # ignore any notebook checkpoint folders
         if '.ipynb_checkpoints' in root:
             continue
         files = glob.glob(os.path.join(root,'*.json'))
@@ -101,6 +119,9 @@ def process_data(cur, conn, filepath, func):
         
 
 def main():
+    """
+    Top level function to parse and load of data into Postgres database.
+    """
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
     cur = conn.cursor()
 

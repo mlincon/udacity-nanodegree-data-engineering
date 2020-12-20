@@ -20,7 +20,7 @@ songplay_table_create = ("""
         session_id INT, 
         location TEXT, 
         user_agent TEXT
-    )
+    );
 """)
 
 ## users in the app
@@ -31,7 +31,7 @@ user_table_create = ("""
         last_name TEXT, 
         gender CHAR(1),
         level TEXT
-    )
+    );
 """)
 
 ## songs in music database
@@ -42,7 +42,7 @@ song_table_create = ("""
         artist_id VARCHAR(180), 
         year INT, 
         duration FLOAT
-    )
+    );
 """)
 
 ## artists in music database
@@ -53,7 +53,7 @@ artist_table_create = ("""
         location TEXT, 
         latitude FLOAT, 
         longitude FLOAT
-    )
+    );
 """)
 
 ## timestamps of records in songplays broken down into specific units
@@ -66,7 +66,7 @@ time_table_create = ("""
         month INT, 
         year INT, 
         weekday VARCHAR
-    )
+    );
 """)
 
 # INSERT RECORDS
