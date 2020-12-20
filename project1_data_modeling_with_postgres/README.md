@@ -23,7 +23,7 @@ Additionally, there are two notebooks for testing purpose:
 - `etl.ipynb`
 - `test.ipynb`
 
-
+## Miscellaneous
 #### Roles and Password in PostgreSQL
 
 ##### Role
