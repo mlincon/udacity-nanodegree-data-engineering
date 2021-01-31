@@ -24,6 +24,7 @@ Additionally, there are two notebooks for testing purpose:
 - `test.ipynb`
 
 ## Miscellaneous
+---
 #### Roles and Password in PostgreSQL
 
 ##### Role
@@ -56,7 +57,7 @@ postgres=#$        \password <username>
     - `\list` or `\l` to list all databases
     - `\connect` or `\c` to switch database
     - `dt` to list all tables in a database
-
+---
 #### Setting up local DB instance via Docker
 
 ##### Get PostgreSQL
