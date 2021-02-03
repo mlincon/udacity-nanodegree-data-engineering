@@ -3,7 +3,13 @@
 **/__pycache__
 .vscode
 **/*.cfg
-
+.terraform
+**.zip
+**.tfstate
+**.tfstate.backup
+**.tfstate.lock.info
+log/**
+**.pem
 
 # keep
 !**/dwh_template.cfg
