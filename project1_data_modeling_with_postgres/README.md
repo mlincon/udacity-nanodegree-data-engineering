@@ -95,6 +95,7 @@ user: user
 pass: pass
 ```
 
+---
 #### SQL from Jupyter Notebook
 - Install the `ipython-sql` library:
 `pip install ipython-sql`
