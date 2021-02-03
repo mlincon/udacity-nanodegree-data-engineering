@@ -1,3 +1,9 @@
+# ignore
 **/.ipynb_checkpoints
 **/__pycache__
 .vscode
+**/*.cfg
+
+
+# keep
+!**/dwh_template.cfg
