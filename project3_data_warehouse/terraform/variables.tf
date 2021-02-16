@@ -17,3 +17,9 @@ variable "default_tags" {
   type        = map(any)
   description = "Default tags in key-value pairs"
 }
+
+
+variable "vpc_cidr_block" {
+  type        = string
+  description = "The CIDR block for the VPC associated with Redshift"
+}

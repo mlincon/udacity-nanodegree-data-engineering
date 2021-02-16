@@ -6,3 +6,5 @@ default_tags = {
   Name : "udacity-DE-NanoDegree",
   project : "project3-dwh"
 }
+
+vpc_cidr_block = "10.0.0.0/16"
