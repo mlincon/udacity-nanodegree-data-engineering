@@ -22,15 +22,13 @@ do
     # read the content from the secret file and replace the 
     # matching placeholder in the string from template file
     secret_content=$(<$secret)
-    # use a different character other thean / as regexp delimiter
-    # to avoid escaping the "/" in ARN
+    # use a different character other thean / as regexp delimiter to avoid escaping the "/" in ARN
     # here we use ,
     sed_line="s,$placeholder_to_replace,$secret_content,"
     config_template=$(echo "$config_template" | sed $sed_line)
 done
 
 # ref: https://www.oreilly.com/library/view/learning-linux-shell/9781788993197/a7ed8d81-e932-4ff8-b77f-8af922b88aad.xhtml
-
 # assign descriptor 4 to config file to be used
 exec 3> dwh.cfg
 
