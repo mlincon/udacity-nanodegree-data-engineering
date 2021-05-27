@@ -112,12 +112,29 @@ time_table_create = ("""
 """)
 
 # STAGING TABLES
-
+# ref: https://docs.aws.amazon.com/redshift/latest/dg/r_COPY_command_examples.html#r_COPY_command_examples-copy-from-json
 staging_events_copy = ("""
-""").format()
+    copy staging_events
+    from {} 
+    iam_role {}
+    region 'us-west-2'
+    json '{}';
+""").format(
+    config.get["S3"]["LOG_DATA"],
+    config.get["IAM_ROLE"]["ARN"],
+    config.get["S3"]["LOG_JSONPATH"]
+)
 
 staging_songs_copy = ("""
-""").format()
+    copy staging_songs 
+    from {} 
+    iam_role {}
+    region 'us-west-2'
+    json 'auto';
+""").format(
+    config.get["S3"]["SONG_DATA"],
+    config.get["IAM_ROLE"]["ARN"]
+)
 
 # FINAL TABLES
 
