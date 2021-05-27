@@ -7,35 +7,108 @@ config.read('dwh.cfg')
 
 # DROP TABLES
 
-staging_events_table_drop = ""
-staging_songs_table_drop = ""
-songplay_table_drop = ""
-user_table_drop = ""
-song_table_drop = ""
-artist_table_drop = ""
-time_table_drop = ""
+staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
+staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
+songplay_table_drop = "DROP TABLE IF EXISTS songplay"
+user_table_drop = "DROP TABLE IF EXISTS user"
+song_table_drop = "DROP TABLE IF EXISTS song"
+artist_table_drop = "DROP TABLE IF EXISTS artist"
+time_table_drop = "DROP TABLE IF EXISTS time"
 
 # CREATE TABLES
 
 staging_events_table_create= ("""
+    CREATE TABLE IF NOT EXISTS staging_events (
+        artist          VARCHAR(MAX)
+        , auth          VARCHAR(256)
+        , firstName     VARCHAR(MAX)
+        , gender        CHAR(1)
+        , itemInSession INTEGER
+        , lastName      VARCHAR(MAX)
+        , length        DOUBLE PRECISION
+        , level         VARCHAR(256)
+        , location      VARCHAR(MAX)
+        , method        CHAR(10)
+        , page          VARCHAR(256)
+        , registration  DOUBLE PRECISION
+        , sessionId     INTEGER
+        , song          VARCHAR(MAX)
+        , status        INTEGER
+        , ts            BIGINT
+        , userAgent     VARCHAR(MAX) 
+        , userId        VARCHAR(300)
+    )
 """)
 
 staging_songs_table_create = ("""
+    CREATE TABLE IF NOT EXISTS staging_songs (
+        num_songs           INTEGER
+        , artist_id         VARCHAR(300)
+        , artist_latitude   DOUBLE PRECISION
+        , artist_longitude  DOUBLE PRECISION 
+        , artist_location   VARCHAR(MAX)
+        , artist_name       VARCHAR(MAX)
+        , song_id           VARCHAR(300)
+        , title             VARCHAR(MAX)
+        , duration          DOUBLE PRECISION
+        , year              SMALLINT
+    )
 """)
 
 songplay_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songplays (
+        songplay_id     IDENTITY(0,1) PRIMARY KEY
+        , start_time    TIMESTAMP REFERENCES time (start_time)
+        , user_id       VARCHAR(300) REFERENCES users (user_id)
+        , level         VARCHAR(MAX)
+        , song_id       VARCHAR(300) REFERENCES songs (song_id)
+        , artist_id     VARCHAR(MAX) REFERENCES artists (artist_id)
+        , session_id    INTEGER
+        , location      VARCHAR(MAX)
+        , user_agent    VARCHAR(MAX)
+    )
 """)
 
 user_table_create = ("""
+    CREATE TABLE IF NOT EXISTS users (
+        user_id         VARCHAR(300) PRIMARY KEY
+        , first_name    VARCHAR(MAX)
+        , last_name     VARCHAR(MAX)
+        , gender        CHAR(1)
+        , level         VARCHAR(256)
+    )
 """)
 
 song_table_create = ("""
+    CREATE TABLE IF NOT EXISTS songs (
+        song_id     VARCHAR(300) PRIMARY KEY
+        , title     VARCHAR(MAX)
+        , artist_id VARCHAR(300)
+        , year      SMALLINT
+        , duration  DOUBLE PRECISION
+    )
 """)
 
 artist_table_create = ("""
+    CREATE TABLE IF NOT EXISTS artists (
+        artist_id   VARCHAR(300) PRIMARY KEY
+        , name      VARCHAR(MAX)
+        , location  VARCHAR(MAX)
+        , lattitude DOUBLE PRECISION
+        , longitude DOUBLE PRECISION
+    )
 """)
 
 time_table_create = ("""
+    CREATE TABLE IF NOT EXISTS times (
+        start_time  TIMESTAMP PRIMARY KEY
+        , hour      SMALLINT
+        , day       SMALLINT
+        , week      SMALLINT
+        , month     SMALLINT
+        , year      SMALLINT
+        , weekday   CHAR(30)
+    )
 """)
 
 # STAGING TABLES
