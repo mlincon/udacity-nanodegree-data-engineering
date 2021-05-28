@@ -18,7 +18,7 @@ time_table_drop = "DROP TABLE IF EXISTS time"
 # CREATE TABLES
 
 staging_events_table_create= ("""
-    CREATE TABLE IF NOT EXISTS staging_events (
+    CREATE TABLE staging_events (
         artist          VARCHAR(MAX)
         , auth          VARCHAR(256)
         , firstName     VARCHAR(MAX)
@@ -41,7 +41,7 @@ staging_events_table_create= ("""
 """)
 
 staging_songs_table_create = ("""
-    CREATE TABLE IF NOT EXISTS staging_songs (
+    CREATE TABLE staging_songs (
         num_songs           INTEGER
         , artist_id         VARCHAR(300)
         , artist_latitude   DOUBLE PRECISION
@@ -56,7 +56,7 @@ staging_songs_table_create = ("""
 """)
 
 songplay_table_create = ("""
-    CREATE TABLE IF NOT EXISTS songplays (
+    CREATE TABLE songplays (
         songplay_id     IDENTITY(0,1) PRIMARY KEY
         , start_time    TIMESTAMP REFERENCES time (start_time)
         , user_id       VARCHAR(300) REFERENCES users (user_id)
@@ -70,7 +70,7 @@ songplay_table_create = ("""
 """)
 
 user_table_create = ("""
-    CREATE TABLE IF NOT EXISTS users (
+    CREATE TABLE users (
         user_id         VARCHAR(300) PRIMARY KEY
         , first_name    VARCHAR(MAX)
         , last_name     VARCHAR(MAX)
@@ -80,7 +80,7 @@ user_table_create = ("""
 """)
 
 song_table_create = ("""
-    CREATE TABLE IF NOT EXISTS songs (
+    CREATE TABLE songs (
         song_id     VARCHAR(300) PRIMARY KEY
         , title     VARCHAR(MAX)
         , artist_id VARCHAR(300)
@@ -90,7 +90,7 @@ song_table_create = ("""
 """)
 
 artist_table_create = ("""
-    CREATE TABLE IF NOT EXISTS artists (
+    CREATE TABLE artists (
         artist_id   VARCHAR(300) PRIMARY KEY
         , name      VARCHAR(MAX)
         , location  VARCHAR(MAX)
@@ -100,7 +100,7 @@ artist_table_create = ("""
 """)
 
 time_table_create = ("""
-    CREATE TABLE IF NOT EXISTS times (
+    CREATE TABLE times (
         start_time  TIMESTAMP PRIMARY KEY
         , hour      SMALLINT
         , day       SMALLINT
@@ -119,11 +119,9 @@ staging_events_copy = ("""
     iam_role {}
     region 'us-west-2'
     json '{}';
-""").format(
-    config.get["S3"]["LOG_DATA"],
-    config.get["IAM_ROLE"]["ARN"],
-    config.get["S3"]["LOG_JSONPATH"]
-)
+""").format(config.get("S3", "LOG_DATA"),
+            config.get("IAM_ROLE", "ARN"),
+            config.get("S3", "LOG_JSONPATH"))
 
 staging_songs_copy = ("""
     copy staging_songs 
@@ -131,26 +129,116 @@ staging_songs_copy = ("""
     iam_role {}
     region 'us-west-2'
     json 'auto';
-""").format(
-    config.get["S3"]["SONG_DATA"],
-    config.get["IAM_ROLE"]["ARN"]
-)
+""").format(config.get("S3", "SONG_DATA"),
+            config.get("IAM_ROLE", "ARN"))
 
 # FINAL TABLES
 
 songplay_table_insert = ("""
+    INSERT INTO songplays (
+        start_time
+        , user_id
+        , level
+        , song_id
+        , artist_id
+        , session_id
+        , location
+        , user_agent
+    )
+    SELECT
+        -- ref: https://www.fernandomc.com/posts/redshift-epochs-and-timestamps/
+        timestamp 'epoch' +  (events.ts/1000)* interval '1 second' AS start_time
+        , events.userId     AS user_id
+        , events.level      AS level
+        , songs.song_id     AS song_id
+        , songs.artist_id   AS artist_id
+        , events.sessionId  AS session_id
+        , events.location   AS location
+        , events.userAgent  AS user_agent
+    JOIN staging_songs songs
+    FROM staging_events events
+        ON songs.artist_name = events.artist
+        AND songs.title = events.song
+    WHERE events.page = 'NextSong'
 """)
 
 user_table_insert = ("""
+    INSERT INTO users (
+        user_id
+        , first_name
+        , last_name
+        , gender
+        , level
+    )
+    SELECT DISTINCT
+        events.userId       AS user_id
+        , events.firstName  AS first_name
+        , events.lastName   AS last_name
+        , events.gender     AS gender
+        , events.level      AS level
+    FROM staging_events events
 """)
 
 song_table_insert = ("""
+    INSERT INTO song (
+        song_id
+        , title
+        , artist_id
+        , year
+        , duration
+    )
+    SELECT DISTINCT
+        songs.song_id       AS song_id
+        , songs.title       AS title
+        , songs.artist_id   AS artist_id
+        , songs.year        AS year
+        , songs. duration   AS duration
+    FROM staging_songs songs
+
 """)
 
 artist_table_insert = ("""
+    INSERT INTO artists (
+        artist_id
+        , name
+        , location
+        , latitude
+        , longitude
+    )
+    SELECT DISTINCT
+        songs.artist_id             AS artist_id
+        , songs.artist_name         AS name
+        , songs.artist_location     AS location
+        , songs.artist_latitude     AS lattitude
+        , songs.artist_longitude    AS longitude
+    FROM staging_songs songs
 """)
 
+# ref: https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 time_table_insert = ("""
+    INSERT INTO time (
+        start_time
+        , hour
+        , day
+        , week
+        , month
+        , year
+        , weekday
+    )
+    SELECT
+        t.start_time                        AS start_time
+        , DATE_PART(HOUR, start_time)       AS hour
+        , DATE_PART(DAY, start_time)        AS day
+        , DATE_PART(WEEK, start_time)       AS week
+        , DATE_PART(MONTH, start_time)      AS month
+        , DATE_PART(YEAR, start_time)       AS year
+        , DATE_PART(WEEKDAY, start_time)    AS weekday
+    FROM (
+        SELECT DISTINCT
+            timestamp 'epoch' +  (events.ts/1000)* interval '1 second' AS start_time
+        FROM staging_events events
+    ) t
+
 """)
 
 # QUERY LISTS
