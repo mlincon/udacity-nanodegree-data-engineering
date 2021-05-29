@@ -9,11 +9,11 @@ config.read('dwh.cfg')
 
 staging_events_table_drop = "DROP TABLE IF EXISTS staging_events"
 staging_songs_table_drop = "DROP TABLE IF EXISTS staging_songs"
-songplay_table_drop = "DROP TABLE IF EXISTS songplay"
-user_table_drop = "DROP TABLE IF EXISTS user"
-song_table_drop = "DROP TABLE IF EXISTS song"
-artist_table_drop = "DROP TABLE IF EXISTS artist"
-time_table_drop = "DROP TABLE IF EXISTS time"
+songplay_table_drop = "DROP TABLE IF EXISTS songplays CASCADE"
+user_table_drop = "DROP TABLE IF EXISTS users CASCADE"
+song_table_drop = "DROP TABLE IF EXISTS songs CASCADE"
+artist_table_drop = "DROP TABLE IF EXISTS artists CASCADE"
+time_table_drop = "DROP TABLE IF EXISTS time CASCADE"
 
 # CREATE TABLES
 
@@ -57,7 +57,7 @@ staging_songs_table_create = ("""
 
 songplay_table_create = ("""
     CREATE TABLE songplays (
-        songplay_id     IDENTITY(0,1) PRIMARY KEY
+        songplay_id     INTEGER IDENTITY(0,1) PRIMARY KEY
         , start_time    TIMESTAMP REFERENCES time (start_time)
         , user_id       VARCHAR(300) REFERENCES users (user_id)
         , level         VARCHAR(MAX)
@@ -100,7 +100,7 @@ artist_table_create = ("""
 """)
 
 time_table_create = ("""
-    CREATE TABLE times (
+    CREATE TABLE IF NOT EXISTS time (
         start_time  TIMESTAMP PRIMARY KEY
         , hour      SMALLINT
         , day       SMALLINT
@@ -116,9 +116,9 @@ time_table_create = ("""
 staging_events_copy = ("""
     copy staging_events
     from {} 
-    iam_role {}
+    iam_role '{}'
     region 'us-west-2'
-    json '{}';
+    json {};
 """).format(config.get("S3", "LOG_DATA"),
             config.get("IAM_ROLE", "ARN"),
             config.get("S3", "LOG_JSONPATH"))
@@ -126,7 +126,7 @@ staging_events_copy = ("""
 staging_songs_copy = ("""
     copy staging_songs 
     from {} 
-    iam_role {}
+    iam_role '{}'
     region 'us-west-2'
     json 'auto';
 """).format(config.get("S3", "SONG_DATA"),
@@ -180,7 +180,7 @@ user_table_insert = ("""
 """)
 
 song_table_insert = ("""
-    INSERT INTO song (
+    INSERT INTO songs (
         song_id
         , title
         , artist_id
@@ -216,7 +216,7 @@ artist_table_insert = ("""
 
 # ref: https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 time_table_insert = ("""
-    INSERT INTO time (
+    INSERT INTO times (
         start_time
         , hour
         , day
@@ -243,7 +243,7 @@ time_table_insert = ("""
 
 # QUERY LISTS
 
-create_table_queries = [staging_events_table_create, staging_songs_table_create, songplay_table_create, user_table_create, song_table_create, artist_table_create, time_table_create]
-drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, songplay_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop]
+create_table_queries = [staging_events_table_create, staging_songs_table_create, user_table_create, song_table_create, artist_table_create, time_table_create, songplay_table_create]
+drop_table_queries = [staging_events_table_drop, staging_songs_table_drop, user_table_drop, song_table_drop, artist_table_drop, time_table_drop, songplay_table_drop]
 copy_table_queries = [staging_events_copy, staging_songs_copy]
-insert_table_queries = [songplay_table_insert, user_table_insert, song_table_insert, artist_table_insert, time_table_insert]
+insert_table_queries = [user_table_insert, song_table_insert, artist_table_insert, time_table_insert, songplay_table_insert]
