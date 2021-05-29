@@ -1,5 +1,5 @@
 module "redshift" {
-  source = "git@github.com:mlincon/terraform-aws-redshift.git"
+  source = "git@github.com:mlincon/terraform-module-aws-redshift.git"
 
   region       = var.region
   default_tags = var.default_tags

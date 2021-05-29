@@ -5,7 +5,7 @@ default_tags = {
 }
 
 vpc_cidr_block              = "10.0.0.0/16"
-number_of_redshift_subnets  = 2
+number_of_redshift_subnets  = 1
 redshift_subnet_group_name  = "udacity-project3"
 redshift_role_name          = "udacity-project3-redshift-role"
 redshift_cluster_identifier = "udacity-project3-cluster"
