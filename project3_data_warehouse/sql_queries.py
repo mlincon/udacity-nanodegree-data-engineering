@@ -155,8 +155,8 @@ songplay_table_insert = ("""
         , events.sessionId  AS session_id
         , events.location   AS location
         , events.userAgent  AS user_agent
-    JOIN staging_songs songs
     FROM staging_events events
+    JOIN staging_songs songs
         ON songs.artist_name = events.artist
         AND songs.title = events.song
     WHERE events.page = 'NextSong'
@@ -202,7 +202,7 @@ artist_table_insert = ("""
         artist_id
         , name
         , location
-        , latitude
+        , lattitude
         , longitude
     )
     SELECT DISTINCT
@@ -216,7 +216,7 @@ artist_table_insert = ("""
 
 # ref: https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
 time_table_insert = ("""
-    INSERT INTO times (
+    INSERT INTO time (
         start_time
         , hour
         , day
