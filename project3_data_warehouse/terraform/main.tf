@@ -15,4 +15,6 @@ module "redshift" {
   redshift_master_password = var.redshift_master_password
   redshift_node_type       = var.redshift_node_type
   redshift_cluster_port    = var.redshift_cluster_port
+  redshift_cluster_type    = var.redshift_cluster_type
+  redshift_number_of_nodes = var.redshift_number_of_nodes
 }

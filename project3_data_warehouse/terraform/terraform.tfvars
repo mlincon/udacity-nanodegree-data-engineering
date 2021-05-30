@@ -1,4 +1,4 @@
-region = "eu-central-1"
+region = "us-west-2"
 default_tags = {
   Name : "udacity-DE-NanoDegree",
   project : "project3-dwh"
@@ -9,7 +9,9 @@ number_of_redshift_subnets  = 1
 redshift_subnet_group_name  = "udacity-project3"
 redshift_role_name          = "udacity-project3-redshift-role"
 redshift_cluster_identifier = "udacity-project3-cluster"
+redshift_cluster_type       = "multi-node"
+redshift_number_of_nodes    = 4
 
-redshift_database_name   = "dev"
-redshift_node_type       = "dc2.large"
-redshift_cluster_port    = 5439
+redshift_database_name = "dev"
+redshift_node_type     = "dc2.large"
+redshift_cluster_port  = 5439

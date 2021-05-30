@@ -1,7 +1,7 @@
 variable "region" {
   type        = string
   description = "AWS region"
-  default     = "eu-central-1"
+  default     = "us-west-2"
 }
 
 variable "default_tags" {
@@ -57,6 +57,16 @@ variable "redshift_master_password" {
 variable "redshift_node_type" {
   type        = string
   description = "The node type to be provisioned for the cluster"
+}
+
+variable "redshift_cluster_type" {
+  type        = string
+  description = "The cluster type to use. Either single-node or multi-node"
+}
+
+variable "redshift_number_of_nodes" {
+  type        = number
+  description = "The number of compute nodes in the cluster"
 }
 
 variable "redshift_cluster_port" {
