@@ -30,7 +30,7 @@ staging_events_table_create= ("""
         , location      VARCHAR(MAX)
         , method        CHAR(10)
         , page          VARCHAR(256)
-        , registration  DOUBLE PRECISION
+        , registration  VARCHAR(256)
         , sessionId     INTEGER
         , song          VARCHAR(MAX)
         , status        INTEGER
@@ -134,6 +134,10 @@ staging_songs_copy = ("""
 
 # FINAL TABLES
 
+# join staging_events and staging_songs table on columns artist name, song title and duration
+# include also duration as, e.g. a song can have a different versions by the same artist, and 
+# in this case the other version should be a new/different record/entry in the table by itself
+# reference for ts calculation: https://www.fernandomc.com/posts/redshift-epochs-and-timestamps/
 songplay_table_insert = ("""
     INSERT INTO songplays (
         start_time
@@ -146,7 +150,6 @@ songplay_table_insert = ("""
         , user_agent
     )
     SELECT
-        -- ref: https://www.fernandomc.com/posts/redshift-epochs-and-timestamps/
         timestamp 'epoch' +  (events.ts/1000)* interval '1 second' AS start_time
         , events.userId     AS user_id
         , events.level      AS level
@@ -156,12 +159,17 @@ songplay_table_insert = ("""
         , events.location   AS location
         , events.userAgent  AS user_agent
     FROM staging_events events
+
     JOIN staging_songs songs
         ON songs.artist_name = events.artist
         AND songs.title = events.song
+        AND songs.duration = events.length
     WHERE events.page = 'NextSong'
 """)
 
+# in case of conflict, attempt to get the most recent values by self-joining
+# on max of ts and userId column
+# attempted is an PostgreSQL like upsert (on conflict -> update)
 user_table_insert = ("""
     INSERT INTO users (
         user_id
@@ -177,8 +185,19 @@ user_table_insert = ("""
         , events.gender     AS gender
         , events.level      AS level
     FROM staging_events events
+    JOIN (
+        SELECT
+            MAX(e.ts) as ts
+            , e.userId as userId
+        FROM staging_events e
+        GROUP BY e.userId
+    ) t
+        ON events.userId = t.userId
+        AND events.ts = t.ts
 """)
 
+
+# On conflict, do nothing
 song_table_insert = ("""
     INSERT INTO songs (
         song_id
@@ -194,9 +213,10 @@ song_table_insert = ("""
         , songs.year        AS year
         , songs. duration   AS duration
     FROM staging_songs songs
-
 """)
 
+# similar to users table, attempt to get the most recent artist record based on the year column
+# self-join on the max of year and artist_id column and use it to get the lastest records
 artist_table_insert = ("""
     INSERT INTO artists (
         artist_id
@@ -212,6 +232,15 @@ artist_table_insert = ("""
         , songs.artist_latitude     AS lattitude
         , songs.artist_longitude    AS longitude
     FROM staging_songs songs
+    JOIN (
+        SELECT
+            MAX(s.year) as year
+            , s.artist_id as artist_id
+        FROM staging_songs s
+        GROUP BY s.artist_id
+    ) t
+        ON songs.artist_id = t.artist_id
+        AND songs.year = t.year
 """)
 
 # ref: https://docs.aws.amazon.com/redshift/latest/dg/r_Dateparts_for_datetime_functions.html
