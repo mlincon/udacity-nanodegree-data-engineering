@@ -159,7 +159,6 @@ songplay_table_insert = ("""
         , events.location   AS location
         , events.userAgent  AS user_agent
     FROM staging_events events
-
     JOIN staging_songs songs
         ON songs.artist_name = events.artist
         AND songs.title = events.song
@@ -167,9 +166,7 @@ songplay_table_insert = ("""
     WHERE events.page = 'NextSong'
 """)
 
-# in case of conflict, attempt to get the most recent values by self-joining
-# on max of ts and userId column
-# attempted is an PostgreSQL like upsert (on conflict -> update)
+# attempt to get the most recent values by self-joining on max of ts and userId column
 user_table_insert = ("""
     INSERT INTO users (
         user_id
